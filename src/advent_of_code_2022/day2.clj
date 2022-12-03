@@ -10,17 +10,17 @@
   (cond
     (= a b) :draw
 
-    (or
-      (= [:rock :scissors] [b a])
-      (= [:scissors :paper] [b a])
-      (= [:paper :rock] [b a]))
+    (contains? #{[:rock :scissors]
+                 [:scissors :paper]
+                 [:paper :rock]}
+               [b a])
     :win
 
     :else
     :lose))
 
 (defn game-points-result [res]
-  ({:win 6 :draw 3 :lose 0} res))
+  (get {:win 6 :draw 3 :lose 0} res))
 
 (defn game-result [a b]
   (game-points-result (match-result a b)))
@@ -93,6 +93,6 @@
   (is (= 7 (parse-round-2 "C Z")))
 
   (is (= 12 (total-match-results "resources/day2-sample.txt")))
-  (is (= 12 (total-match-results "resources/day2.txt")))
+  (is (= 14652 (total-match-results "resources/day2.txt")))
 
   )
