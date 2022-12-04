@@ -2,4 +2,4 @@
   (:gen-class))
 
 (defn parse-int [s] (Integer/parseInt s))
-
+(defn parse-lines [input-file] (clojure.string/split-lines (slurp input-file)))
