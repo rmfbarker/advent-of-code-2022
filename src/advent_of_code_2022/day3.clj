@@ -18,22 +18,22 @@
 (defn sum-items [f]
   (reduce + (map
               common-item-value
-              (clojure.string/split-lines (slurp f))))
-  )
+              (clojure.string/split-lines (slurp f)))))
+
 
 (deftest part-1
 
   (testing "that we parse correctly"
 
-    (is (= \p (common-item "vJrwpWtwJgWrhcsFMMfFFhFp")))
-    )
+    (is (= \p (common-item "vJrwpWtwJgWrhcsFMMfFFhFp"))))
+
 
   (testing "item value"
     (is (= 1 (item-value \a)))
     (is (= 26 (item-value \z)))
     (is (= 27 (item-value \A)))
-    (is (= 52 (item-value \Z)))
-    )
+    (is (= 52 (item-value \Z))))
+
 
   (testing "sum values"
 
@@ -48,8 +48,8 @@
   (first
     (reduce (fn [c1 c2]
               (common-items c1 c2))
-            rucksacks))
-  )
+            rucksacks)))
+
 
 (defn part2 [input]
   (reduce + (map item-value (map badge (partition 3 (clojure.string/split-lines (slurp input)))))))
@@ -59,7 +59,6 @@
     (is (= \r (badge (clojure.string/split-lines "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL\nPmmdzqPrVvPwwTWBwg\n\n"))))
     (is (= \Z (badge (clojure.string/split-lines "wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\nttgJtRGJQctTZtZT\nCrZsJsPPZsGzwwsLwLmpwMDw"))))
 
-    (is (= 2425 (part2 "resources/day3.txt")))
-    )
+    (is (= 2425 (part2 "resources/day3.txt")))))
 
-  )
+
