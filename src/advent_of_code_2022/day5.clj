@@ -6,28 +6,18 @@
 
 (def raw-columns (take-while #((complement clojure.string/includes?) % "1") input))
 
-(def cols (-> (last raw-columns)
-              (clojure.string/replace "[" "")
-              (clojure.string/replace "]" "")
-              (clojure.string/split #" ")))
-
-(def no-cols (count (re-seq #"\w" (last raw-columns))))
-
-(def rows (map #(partition-all 4 %) raw-columns))
-
 (def rows (map
             (fn [row]
               (map
                 (fn [cell]
                   (clojure.string/trim (apply str cell))) row))
-            rows))
+            (map #(partition-all 4 %) raw-columns)))
 
-(def cols (apply map vector rows))
-
-(def cols (map
-            (fn [col]
-              (filter seq col))
-            cols))
+(def cols (vec
+            (map
+              (fn [col]
+                (filter seq col))
+              (apply map vector rows))))
 
 (def instructions
   (let [raw-instructions (rest (drop-while
@@ -36,30 +26,49 @@
         digit-instrs     (map #(map
                                  parse-int
                                  (re-seq #"\d+" %)) raw-instructions)]
-    digit-instrs))
+    (map (fn [[move from to]]
+           (vector move (dec from) (dec to)))
+         digit-instrs)))
 
-(defn do-move
+(defn do-move-9000
   "returns the new 'from' column"
   [cols no from to]
   (concat (reverse (take no
                          (nth cols from)))
           (nth cols to)))
 
-(defn step [cols instr]
-  (let [[move from to] instr
-        from (dec from) to (dec to)]
+(defn do-move-9001
+  "returns the new 'from' column"
+  [cols no from to]
+  (concat (take no
+                (nth cols from))
+          (nth cols to)))
+
+(defn step [move-fn cols instr]
+  (let [[move from to] instr]
     (-> cols
-        (assoc to (do-move cols move from to))
+        (assoc to (move-fn cols move from to))
         (assoc from (drop move (nth cols from))))))
 
-(defn answer []
-  (let [final-state (reduce step (vec cols) instructions)
-        top-crates  (map first final-state)]
+(defn top-crates [state]
+  (let [top-crates (map first state)]
     (apply str
            (re-seq
              #"\w"
-             (apply str top-crates))))
-  )
+             (apply str top-crates)))))
+
+(defn iterate-crates [step-fn]
+  (let [final-state (reduce step-fn cols instructions)]
+    (top-crates final-state)))
+
+(defn compute-part1 []
+  (iterate-crates (partial step do-move-9000)))
+
+(defn compute-part2 []
+  (iterate-crates (partial step do-move-9001)))
 
 (deftest part-1
-  (is (= "TGWSMRBPN" (answer))))
+  (is (= "TGWSMRBPN" (compute-part1))))
+
+(deftest part-2
+  (is (= "TZLTLWRNF" (compute-part2))))
