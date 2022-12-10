@@ -47,8 +47,7 @@
       (let [c (first cmds)]
         (cond
           (clojure.string/starts-with? c "dir")
-          (do (println "in a dir" c "parent dir is" current-dir)
-              (recur (rest cmds) current-dir files))
+          (recur (rest cmds) current-dir files)
 
           (file-size c)
           (let [parent-dirs  (all-parent-dirs current-dir)
@@ -56,14 +55,11 @@
             (recur (rest cmds) current-dir (into files dirs-with-sz)))
 
           (clojure.string/starts-with? c "$ cd")
-          (do (println "change dir" c)
-              (let [new-dir (last (clojure.string/split c #" "))
-                    new-agg (if (= ".." new-dir)
-                              (pop current-dir)
-                              (conj current-dir new-dir))]
-                (println "moving to dir" new-dir)
-                (println "new agg" new-agg)
-                (recur (rest cmds) new-agg files)))
+          (let [new-dir (last (clojure.string/split c #" "))
+                new-agg (if (= ".." new-dir)
+                          (pop current-dir)
+                          (conj current-dir new-dir))]
+            (recur (rest cmds) new-agg files))
 
           :else
           (recur (rest cmds) current-dir files)))
@@ -71,9 +67,7 @@
 
 (defn dir-sizes [file] (map
                          (fn [[dir files]]
-                           [dir (reduce + (map second files))]
-                           )
-
+                           [dir (reduce + (map second files))])
                          (group-by first (parse-files file))))
 
 (defn calculate [file]
@@ -82,3 +76,13 @@
                    (map second))
              +
              (dir-sizes file)))
+
+(def unused-space (- 70000000 (get (into {} (dir-sizes day7-input)) ["/"])))
+(def required (- 30000000 unused-space))
+
+(def part-2 (first (sort-by second
+
+                            (filter
+                              (fn [[dir sz]]
+                                (< required sz))
+                              (dir-sizes day7-input)))))
