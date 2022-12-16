@@ -11,8 +11,7 @@
   (if-let [sz (first (re-seq
                        #"\d+"
                        l))]
-    (parse-int sz)
-    ))
+    (parse-int sz)))
 
 (defn process [file-path]
   (let [cmds (parse-lines file-path)]
