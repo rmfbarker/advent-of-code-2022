@@ -12,13 +12,28 @@
         [(first move) (parse-int (second move))]))
     (parse-lines file-path)))
 
-(defn do-move [dir pos]
+(defn single-moves [file-path]
+  (apply concat
+         (map
+           (fn [[dir dis]] (repeat dis dir))
+           (moves file-path))))
+
+(defn do-move [pos dir]
   (let [[x y] pos]
-    (condp = dir
+    (condp = (str dir)
       "R" [(inc x) y]
       "L" [(dec x) y]
       "U" [x (inc y)]
       "D" [x (dec y)])))
+
+(defn calculate-trail [mvs]
+  (let [start [0 0]]
+    (reduce
+      (fn [state mv]
+        (let [new-pos (do-move (last state) mv)]
+          (conj state new-pos)))
+      [start]
+      mvs)))
 
 (defn adjacent? [head tail]
   (let [[xh yh] head
@@ -60,7 +75,7 @@
          [dir dis] step]
 
     (if (< 0 dis)
-      (let [new-head (do-move dir (:head state))
+      (let [new-head (do-move (:head state) dir)
             new-tail (move-tail new-head (:tail state))]
         (recur (assoc
                  (update state :positions conj new-tail)
@@ -82,10 +97,26 @@
 
                   moves)))))
 
+(defn do-part1-refactor [file-path]
+  (count (set (reduce
+                (fn [agg head-pos]
+                  (conj agg (move-tail head-pos (last agg))))
+                [[0 0]]
+                (calculate-trail (single-moves file-path)))))
+  )
+
+
+
 (deftest test-day9
 
   (testing "part 1"
     (is (= 6311 (do-part1 (moves input-file)))))
+
+  (testing "part 1 refactor"
+
+    (is (= 13 (do-part1-refactor sample-file)))
+    (is (= 6311 (do-part1-refactor input-file)))
+    )
 
   (testing "test moving horizontally"
 
