@@ -3,13 +3,14 @@
             [advent-of-code-2022.core :refer :all]))
 
 (def sample-file "resources/day9-sample.txt")
+(def larger-sample-file "resources/day9-larger.txt")
 (def input-file "resources/day9.txt")
 
 (defn moves [file-path]
   (map
     (fn [l]
-      (let [move (clojure.string/split l #" ")]
-        [(first move) (parse-int (second move))]))
+      (let [[dir dis] (clojure.string/split l #" ")]
+        [dir (parse-int dis)]))
     (parse-lines file-path)))
 
 (defn single-moves [file-path]
@@ -85,17 +86,31 @@
       state
       )))
 
+(defn get-head-positions [moves]
+  (let [do-step (fn [trail step]
+                  (loop [trail trail
+                         [dir dis] step]
+                    (if (< 0 dis)
+                      (let [new-head (do-move (peek trail) dir)]
+                        (recur (conj trail new-head)
+                               [dir (dec dis)]))
+                      trail)))]
+    (reduce do-step [[0 0]] moves)))
+
+(defn get-tail-positions [moves]
+  (:positions
+    (reduce
+
+      (fn [state move]
+        (let [result (do-step move state)]
+          result))
+
+      {:head [0 0] :tail [0 0] :positions []}
+
+      moves)))
 
 (defn do-part1 [moves]
-  (count (set (:positions
-                (reduce
-                  (fn [state move]
-                    (let [result (do-step move state)]
-                      result))
-
-                  {:head [0 0] :tail [0 0] :positions []}
-
-                  moves)))))
+  (count (set (get-tail-positions moves))))
 
 (defn do-part1-refactor [file-path]
   (count (set (reduce
@@ -105,12 +120,39 @@
                 (calculate-trail (single-moves file-path)))))
   )
 
+(let [heads (get-head-positions (moves larger-sample-file))
+      move-knots (fn [knot] (reduce
+                              (fn [agg head]
+                                (conj agg (move-tail head (peek agg))))
+                              [[0 0]]
+                              knot))]
 
+  (count (set (nth (iterate move-knots heads) 9)))
+  )
+
+
+(defn process-knots [file-path no-knots]
+  (let [heads (get-head-positions (moves file-path))
+        move-knots (fn [knot] (reduce
+                                (fn [agg head]
+                                  (conj agg (move-tail head (peek agg))))
+                                [[0 0]]
+                                knot))]
+
+    (count (set (nth (iterate move-knots heads) no-knots)))
+    ))
 
 (deftest test-day9
 
+  (testing "part 2"
+    (is (= 36 (process-knots larger-sample-file 9)))
+    (is (= 36 (process-knots input-file 10)))
+
+    )
+
   (testing "part 1"
-    (is (= 6311 (do-part1 (moves input-file)))))
+    (is (= 6311 (do-part1 (moves input-file))))
+    )
 
   (testing "part 1 refactor"
 
