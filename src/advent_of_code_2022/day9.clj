@@ -127,8 +127,7 @@
                               [[0 0]]
                               knot))]
 
-  (count (set (nth (iterate move-knots heads) 9)))
-  )
+  (count (set (nth (iterate move-knots heads) 9))))
 
 
 (defn process-knots [file-path no-knots]
@@ -139,26 +138,21 @@
                                 [[0 0]]
                                 knot))]
 
-    (count (set (nth (iterate move-knots heads) no-knots)))
-    ))
+    (count (set (nth (iterate move-knots heads) no-knots)))))
 
 (deftest test-day9
 
   (testing "part 2"
     (is (= 36 (process-knots larger-sample-file 9)))
-    (is (= 36 (process-knots input-file 10)))
-
-    )
+    (is (= 2482 (process-knots input-file 9))))
 
   (testing "part 1"
-    (is (= 6311 (do-part1 (moves input-file))))
-    )
+    (is (= 6311 (do-part1 (moves input-file)))))
 
   (testing "part 1 refactor"
 
     (is (= 13 (do-part1-refactor sample-file)))
-    (is (= 6311 (do-part1-refactor input-file)))
-    )
+    (is (= 6311 (do-part1-refactor input-file))))
 
   (testing "test moving horizontally"
 
